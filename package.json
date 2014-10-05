@@ -26,6 +26,7 @@
     "url": "https://github.com/adamhenson/node-s3-uploader.git"
   },
   "dependencies": {
-    "ws": "~0.4.32"
+    "ws": "~0.4.32",
+    "s3": "~4.2.0"
   }
 }
