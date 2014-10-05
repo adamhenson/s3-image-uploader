@@ -1,0 +1,31 @@
+{
+  "name": "node-s3-uploader",
+  "description": "An Amazon S3 uploader, and progress bar that utilizes websockets.",
+  "version": "0.0.1",
+  "author": {
+    "name": "Adam Henson",
+    "email": "adamhenson1979@gmail.com"
+  },
+  "bugs": {
+    "url": "https://github.com/adamhenson/node-s3-uploader/issues"
+  },
+  "engines": {
+    "node": ">= 0.10"
+  },
+  "homepage": "https://github.com/adamhenson/node-s3-uploader/issues",
+  "keywords": [
+    "s3",
+    "websockets",
+    "image",
+    "uploader"
+  ],
+  "license": "MIT",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/adamhenson/node-s3-uploader.git"
+  },
+  "dependencies": {
+    "ws": "~0.4.32"
+  }
+}
