@@ -16,7 +16,7 @@ var Uploader = function(options){
 		s3Options: {
 			accessKeyId: this.options.accessKeyId,
 			secretAccessKey: this.options.secretAccessKey
-		},
+		}
 	});
 
 };
