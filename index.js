@@ -32,25 +32,27 @@ Uploader.prototype.upload = function(bucket, localFile, remoteFile, successCallb
 	};
 
 	var uploader = this.client.uploadFile(params);
-	var wss = new WebSocketServer({ server: this.options.server });
+  var ws = new WebSocketServer({ server: this.options.server });
 
-	wss.on('connection', function(ws){
-		uploader.on('progress', function(){
-			var progress = {
-				progressAmount : uploader.progressAmount,
-				progressTotal : uploader.progressTotal
-			};
-			ws.send(JSON.stringify(progress));
-		});
-	});
+  ws.on('connection', function(ws) {
+    uploader.on('progress', function(){
+      var progress = {
+        progressAmount : uploader.progressAmount,
+        progressTotal : uploader.progressTotal
+      };
+      ws.send(JSON.stringify(progress), function(error) {
+        if(error) console.log("WS send error:", error);
+      });
+    });
+  });
 
-	uploader.on('error', function(err) {
-		errorCallback.call(uploader, err.stack);
-	});
+  uploader.on('error', function(err) {
+    errorCallback.call(uploader, err.stack);
+  });
 
-	uploader.on('end', function(url) {
-		successCallback.call(uploader, url);
-	});
+  uploader.on('end', function() {
+    successCallback.call(uploader);
+  });
 
 };
 
