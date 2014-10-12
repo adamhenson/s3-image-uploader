@@ -41,6 +41,7 @@ Uploader.prototype.upload = function(fileId, bucket, localFile, remoteFile, succ
 	var params = {
 		localFile: localFile,
 		s3Params: {
+      ACL : (typeof this.options.aws.acl !== 'undefined') ? this.options.aws.acl : 'public-read',
 			Bucket: bucket,
 			Key: remoteFile
 		}
@@ -50,6 +51,7 @@ Uploader.prototype.upload = function(fileId, bucket, localFile, remoteFile, succ
 
   uploader.on('progress', function(){
     var progress = {
+      type : 'progress',
       id : fileId,
       progressAmount : uploader.progressAmount,
       progressTotal : uploader.progressTotal
@@ -65,8 +67,18 @@ Uploader.prototype.upload = function(fileId, bucket, localFile, remoteFile, succ
     errorCallback.call(uploader, err.stack);
   });
 
-  uploader.on('end', function() {
+  uploader.on('end', function(obj) {
     successCallback.call(uploader);
+    var result = {
+      type : 'result',
+      id : fileId,
+      path : '/' + bucket + '/' + remoteFile
+    };
+    if(self.ws){
+      self.ws.send(JSON.stringify(result), function(error) {
+        if(error) console.log("WS send error:", error);
+      });
+    }
   });
 
 };
