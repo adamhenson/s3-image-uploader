@@ -23,18 +23,18 @@ var Uploader = function(options){
 
 Uploader.prototype.websocket = function(){
 
-    var self = this;
-    var ws = new WebSocketServer({ server: self.options.server });
-    self.ws = false;
+  var self = this;
+  var ws = new WebSocketServer({ server: self.options.server });
+  self.ws = false;
 
-    ws.on('connection', function(ws) {
-      self.ws = ws;
-      console.log('ws connected');
-    });
+  ws.on('connection', function(ws) {
+    self.ws = ws;
+    console.log('ws connected');
+  });
 
 };
 
-Uploader.prototype.upload = function(bucket, localFile, remoteFile, successCallback, errorCallback){
+Uploader.prototype.upload = function(fileId, bucket, localFile, remoteFile, successCallback, errorCallback){
 
   var self = this;
 
@@ -49,7 +49,8 @@ Uploader.prototype.upload = function(bucket, localFile, remoteFile, successCallb
 	var uploader = this.client.uploadFile(params);
 
   uploader.on('progress', function(){
-    var progress = {
+    var progress = {};
+    progress[fileId] = {
       progressAmount : uploader.progressAmount,
       progressTotal : uploader.progressTotal
     };
