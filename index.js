@@ -49,8 +49,8 @@ Uploader.prototype.upload = function(fileId, bucket, localFile, remoteFile, succ
 	var uploader = this.client.uploadFile(params);
 
   uploader.on('progress', function(){
-    var progress = {};
-    progress[fileId] = {
+    var progress = {
+      id : fileId,
       progressAmount : uploader.progressAmount,
       progressTotal : uploader.progressTotal
     };
