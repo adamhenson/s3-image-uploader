@@ -68,12 +68,12 @@ Uploader.prototype.upload = function(fileId, bucket, localFile, remoteFile, succ
   });
 
   uploader.on('end', function(obj) {
-    successCallback.call(uploader);
     var result = {
       type : 'result',
       id : fileId,
       path : '/' + bucket + '/' + remoteFile
     };
+    successCallback.call(uploader, result);
     if(self.ws){
       self.ws.send(JSON.stringify(result), function(error) {
         if(error) console.log("WS send error:", error);
