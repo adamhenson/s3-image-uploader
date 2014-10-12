@@ -6,22 +6,37 @@ var s3 = require('s3');
 var Uploader = function(options){
 
 	if(typeof options.server === 'undefined') throw new Error('Uploader: "server" is not defined.');
-	if(typeof options.accessKeyId === 'undefined') throw new Error('Uploader: "accessKeyId" is not defined.');
-	if(typeof options.secretAccessKey === 'undefined') throw new Error('Uploader: "secretAccessKey" is not defined.');
+	if(typeof options.aws.key === 'undefined') throw new Error('Uploader: "aws.key" is not defined.');
+	if(typeof options.aws.secret === 'undefined') throw new Error('Uploader: "aws.secret" is not defined.');
 
 	this.options = options;
 
 	// create the s3 client
 	this.client = s3.createClient({
 		s3Options: {
-			accessKeyId: this.options.accessKeyId,
-			secretAccessKey: this.options.secretAccessKey
+			accessKeyId: this.options.aws.key,
+			secretAccessKey: this.options.aws.secret
 		}
 	});
 
 };
 
+Uploader.prototype.websocket = function(){
+
+    var self = this;
+    var ws = new WebSocketServer({ server: self.options.server });
+    self.ws = false;
+
+    ws.on('connection', function(ws) {
+      self.ws = ws;
+      console.log('ws connected');
+    });
+
+};
+
 Uploader.prototype.upload = function(bucket, localFile, remoteFile, successCallback, errorCallback){
+
+  var self = this;
 
 	var params = {
 		localFile: localFile,
@@ -32,18 +47,17 @@ Uploader.prototype.upload = function(bucket, localFile, remoteFile, successCallb
 	};
 
 	var uploader = this.client.uploadFile(params);
-  var ws = new WebSocketServer({ server: this.options.server });
 
-  ws.on('connection', function(ws) {
-    uploader.on('progress', function(){
-      var progress = {
-        progressAmount : uploader.progressAmount,
-        progressTotal : uploader.progressTotal
-      };
-      ws.send(JSON.stringify(progress), function(error) {
+  uploader.on('progress', function(){
+    var progress = {
+      progressAmount : uploader.progressAmount,
+      progressTotal : uploader.progressTotal
+    };
+    if(self.ws){
+      self.ws.send(JSON.stringify(progress), function(error) {
         if(error) console.log("WS send error:", error);
       });
-    });
+    }
   });
 
   uploader.on('error', function(err) {
