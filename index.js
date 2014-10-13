@@ -3,6 +3,7 @@
 var WebSocketServer = require('ws').Server;
 var s3 = require('s3');
 
+// Constructor
 var Uploader = function(options){
 
 	if(typeof options.server === 'undefined') throw new Error('Uploader: "server" is not defined.');
@@ -21,6 +22,7 @@ var Uploader = function(options){
 
 };
 
+// Handle websocket connection
 Uploader.prototype.websocket = function(){
 
   var self = this;
@@ -34,6 +36,7 @@ Uploader.prototype.websocket = function(){
 
 };
 
+// Upload to S3
 Uploader.prototype.upload = function(fileId, bucket, localFile, remoteFile, successCallback, errorCallback){
 
   var self = this;
@@ -44,6 +47,8 @@ Uploader.prototype.upload = function(fileId, bucket, localFile, remoteFile, succ
       ACL : (typeof this.options.aws.acl !== 'undefined') ? this.options.aws.acl : 'public-read',
 			Bucket: bucket,
 			Key: remoteFile
+      // other options supported by putObject, except Body and ContentLength.
+      // See: http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html#putObject-property
 		}
 	};
 
