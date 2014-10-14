@@ -1,6 +1,8 @@
 'use strict';
 
+// A node websocket library: https://www.npmjs.org/package/ws
 var WebSocketServer = require('ws').Server;
+// Let's not re-invent the wheel. A high level S3 uploader: https://www.npmjs.org/package/s3
 var s3 = require('s3');
 
 // Constructor
@@ -31,7 +33,6 @@ Uploader.prototype.websocket = function(){
 
   ws.on('connection', function(ws) {
     self.ws = ws;
-    console.log('ws connected');
   });
 
 };
@@ -47,13 +48,12 @@ Uploader.prototype.upload = function(fileId, bucket, localFile, remoteFile, succ
       ACL : (typeof this.options.aws.acl !== 'undefined') ? this.options.aws.acl : 'public-read',
 			Bucket: bucket,
 			Key: remoteFile
-      // other options supported by putObject, except Body and ContentLength.
-      // See: http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html#putObject-property
 		}
 	};
 
 	var uploader = this.client.uploadFile(params);
 
+  // when there is progress send a message through our websocket connection
   uploader.on('progress', function(){
     var progress = {
       type : 'progress',
@@ -68,10 +68,12 @@ Uploader.prototype.upload = function(fileId, bucket, localFile, remoteFile, succ
     }
   });
 
+  // on upload error call error callback
   uploader.on('error', function(err) {
     errorCallback.call(uploader, err.stack);
   });
 
+  // when the upload has finished call the success callback and send a message through our websocket
   uploader.on('end', function(obj) {
     var result = {
       type : 'result',
