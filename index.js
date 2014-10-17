@@ -8,19 +8,19 @@ var s3 = require('s3');
 // Constructor
 var Uploader = function(options){
 
-	if(typeof options.server === 'undefined') throw new Error('Uploader: "server" is not defined.');
-	if(typeof options.aws.key === 'undefined') throw new Error('Uploader: "aws.key" is not defined.');
-	if(typeof options.aws.secret === 'undefined') throw new Error('Uploader: "aws.secret" is not defined.');
+  if(typeof options.server === 'undefined') throw new Error('Uploader: "server" is not defined.');
+  if(typeof options.aws.key === 'undefined') throw new Error('Uploader: "aws.key" is not defined.');
+  if(typeof options.aws.secret === 'undefined') throw new Error('Uploader: "aws.secret" is not defined.');
 
-	this.options = options;
+  this.options = options;
 
-	// create the s3 client
-	this.client = s3.createClient({
-		s3Options: {
-			accessKeyId: this.options.aws.key,
-			secretAccessKey: this.options.aws.secret
-		}
-	});
+  // create the s3 client
+  this.client = s3.createClient({
+    s3Options: {
+      accessKeyId: this.options.aws.key,
+      secretAccessKey: this.options.aws.secret
+    }
+  });
 
 };
 
@@ -42,16 +42,16 @@ Uploader.prototype.upload = function(fileId, bucket, localFile, remoteFile, succ
 
   var self = this;
 
-	var params = {
-		localFile: localFile,
-		s3Params: {
+  var params = {
+    localFile: localFile,
+    s3Params: {
       ACL : (typeof this.options.aws.acl !== 'undefined') ? this.options.aws.acl : 'public-read',
-			Bucket: bucket,
-			Key: remoteFile
-		}
-	};
+      Bucket: bucket,
+      Key: remoteFile
+    }
+  };
 
-	var uploader = this.client.uploadFile(params);
+  var uploader = this.client.uploadFile(params);
 
   // when there is progress send a message through our websocket connection
   uploader.on('progress', function(){
@@ -80,12 +80,12 @@ Uploader.prototype.upload = function(fileId, bucket, localFile, remoteFile, succ
       id : fileId,
       path : '/' + bucket + '/' + remoteFile
     };
-    successCallback.call(uploader, result);
     if(self.ws){
       self.ws.send(JSON.stringify(result), function(error) {
         if(error) console.log("WS send error:", error);
       });
     }
+    successCallback.call(uploader, result);
   });
 
 };
