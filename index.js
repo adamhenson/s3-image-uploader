@@ -49,6 +49,7 @@ Uploader.prototype.resize = function(options, successCallback, errorCallback){
   if(typeof options.destination === 'undefined') throw new Error('Uploader.resize: "destination" is not defined.');
   // defaults
   if(typeof options.quality === 'undefined') options.quality = 90;
+  if(typeof options.square === 'undefined') options.square = false;
   if(typeof options.noProfile === 'undefined') options.noProfile = true;
   if(typeof options.maxFileSize === 'undefined') options.maxFileSize = false; // unlimited by default
 
@@ -189,18 +190,17 @@ var _imageSize = function(source, callback){
 var _resize = function(options, size, successCallback, errorCallback){
 
   var img = gm(options.source);
-  var square = (options.width === options.height);
+
+  var newWidth = options.width;
+  var newHeight = options.height;
+
+  if(typeof size !== 'undefined') {
+    if(size.width >= size.height) newHeight = null;
+    else newWidth = null;
+  }
 
   // if we have the width and height info and this needs to be square
-  if(square) {
-
-    var newWidth = null;
-    var newHeight = null;
-
-    if(typeof size !== 'undefined') {
-      if(size.width >= size.height) newHeight = options.height;
-      else newWidth = options.width;
-    }
+  if(options.square) {
 
     img
       .resize(newWidth, newHeight)
@@ -209,7 +209,7 @@ var _resize = function(options, size, successCallback, errorCallback){
 
   } else {
 
-    img.resize(options.width)
+    img.resize(newWidth, newHeight);
 
   }
 
