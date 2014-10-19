@@ -189,18 +189,14 @@ var _imageSize = function(source, callback){
 // Write image to directory
 var _writeImage = function(img, options, successCallback, errorCallback){
 
-  img.autoOrient();
-  if(options.noProfile) img.noProfile();
-
-  img
-    .write(options.destination, function(uploadErr){
-      if(!uploadErr) {
-        successCallback.call(img, options.destination);
-      } else {
-        errorCallback.call(img, uploadErr);
-        console.log('_resize: problem with resize on write.');
-      }
-    });
+  img.write(options.destination, function(uploadErr){
+    if(!uploadErr) {
+      successCallback.call(img, options.destination);
+    } else {
+      errorCallback.call(img, uploadErr);
+      console.log('_resize: problem with resize on write.');
+    }
+  });
 
 };
 
@@ -215,42 +211,47 @@ var _resize = function(options, size, successCallback, errorCallback){
   // if this needs to be square
   if(options.square && options.width === options.height) {
 
+    // if we have size info
     if(typeof size !== 'undefined') {
+      // if the width is more than height we make it null so that
+      // we pass the height to be used by gm, so the outcome
+      // is an image with a height set to the max
+      // and the width is the aspect ratio adjusted... but will be bigger,
+      // and then the gm crop method trims off the width overage.
+      // the same would occur in vice versa if height is bigger than width.
       if(size.width >= size.height) newWidth = null;
       else newHeight = null;
     }
 
     img
       .resize(newWidth, newHeight)
-      .gravity('Center');
+      .gravity('Center')
+      .crop(options.width, options.height, 0, 0)
+      .quality(options.quality);
 
-    _writeImage(img, options, function(){
+  } else { // else it doesn't need to be square
 
-      options.source = options.destination;
-      var img = gm(options.source);
-
-      img
-        .crop(options.width, options.height, 0, 0)
-        .quality(options.quality);
-
-      _writeImage(img, options, successCallback, errorCallback);
-
-    }, errorCallback);
-
-  } else {
-
+    // if we have size info
     if(typeof size !== 'undefined') {
+      // if the width is more than height we make height null so that
+      // we pass width to be used by gm, so the outcome is
+      // an image with larger width. So the image fully constrains
+      // to width and height parameters while maintaining aspect ratio.
       if(size.width >= size.height) newHeight = null;
       else newWidth = null;
     }
 
-    img.
-      resize(newWidth, newHeight)
-      .quality(options.quality);
-
-    _writeImage(img, options, successCallback, errorCallback);
+    img.resize(newWidth, newHeight);
 
   }
+
+  img
+    .quality(options.quality)
+    .autoOrient();
+
+  if(options.noProfile) img.noProfile();
+
+  _writeImage(img, options, successCallback, errorCallback);
 
 };
 
