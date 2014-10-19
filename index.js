@@ -186,38 +186,13 @@ var _imageSize = function(source, callback){
 
 };
 
-// Resize image - depends on size and options
-var _resize = function(options, size, successCallback, errorCallback){
-
-  var img = gm(options.source);
-
-  var newWidth = options.width;
-  var newHeight = options.height;
-
-  if(typeof size !== 'undefined') {
-    if(size.width >= size.height) newHeight = null;
-    else newWidth = null;
-  }
-
-  // if we have the width and height info and this needs to be square
-  if(options.square) {
-
-    img
-      .resize(newWidth, newHeight)
-      .gravity('Center')
-      .crop(options.width, options.height, 0, 0);
-
-  } else {
-
-    img.resize(newWidth, newHeight);
-
-  }
+// Write image to directory
+var _writeImage = function(img, options, successCallback, errorCallback){
 
   img.autoOrient();
   if(options.noProfile) img.noProfile();
 
   img
-    .quality(options.quality)
     .write(options.destination, function(uploadErr){
       if(!uploadErr) {
         successCallback.call(img, options.destination);
@@ -226,6 +201,56 @@ var _resize = function(options, size, successCallback, errorCallback){
         console.log('_resize: problem with resize on write.');
       }
     });
+
+};
+
+// Resize image - depends on size and options
+var _resize = function(options, size, successCallback, errorCallback){
+
+  var img = gm(options.source);
+
+  var newWidth = options.width;
+  var newHeight = options.height;
+
+  // if this needs to be square
+  if(options.square && options.width === options.height) {
+
+    if(typeof size !== 'undefined') {
+      if(size.width >= size.height) newWidth = null;
+      else newHeight = null;
+    }
+
+    img
+      .resize(newWidth, newHeight)
+      .gravity('Center');
+
+    _writeImage(img, options, function(){
+
+      options.source = options.destination;
+      var img = gm(options.source);
+
+      img
+        .crop(options.width, options.height, 0, 0)
+        .quality(options.quality);
+
+      _writeImage(img, options, successCallback, errorCallback);
+
+    }, errorCallback);
+
+  } else {
+
+    if(typeof size !== 'undefined') {
+      if(size.width >= size.height) newHeight = null;
+      else newWidth = null;
+    }
+
+    img.
+      resize(newWidth, newHeight)
+      .quality(options.quality);
+
+    _writeImage(img, options, successCallback, errorCallback);
+
+  }
 
 };
 
