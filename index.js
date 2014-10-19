@@ -50,30 +50,53 @@ Uploader.prototype.resize = function(options, successCallback, errorCallback){
   // defaults
   if(typeof options.quality === 'undefined') options.quality = 90;
   if(typeof options.noProfile === 'undefined') options.noProfile = true;
-  if(typeof options.maxFileSize === 'undefined') options.maxFileSize = 10; // 10mb
+  if(typeof options.maxFileSize === 'undefined') options.maxFileSize = false; // unlimited by default
 
   var self = this;
 
   _imageSize(options.source, function(err, size){
 
-    _imageFileSize(options.source, function(err, fileSize){
-      var fileSize = parseFloat(fileSize.replace('M', ''));
-      if(options.maxFileSize < fileSize) errorCallback.call(this, 'File is larger than the allowed size of ' + options.maxFileSize + ' MB.')
-    });
+    var startResize = function(){
+      _resize(options, size, function(img, destination){
+        var status = {
+          type : 'resize',
+          id : options.fileId,
+          size : options.width + 'x' + options.height
+        };
+        if(self.ws){
+          self.ws.send(JSON.stringify(status), function(error) {
+            if(error) console.log("WS send error:", error);
+          });
+        }
+        successCallback.call(img, destination);
+      }, errorCallback);
+    };
 
-    _resize(options, size, function(img, destination){
-      var status = {
-        type : 'resize',
-        id : options.fileId,
-        size : options.width + 'x' + options.height
-      };
-      if(self.ws){
-        self.ws.send(JSON.stringify(status), function(error) {
-          if(error) console.log("WS send error:", error);
-        });
-      }
-      successCallback.call(img, destination);
-    }, errorCallback);
+    // if maxFileSize is set - get the filesize info and validate
+    if(options.maxFileSize){
+      _imageFileSize(options.source, function(err, fileSize){
+        var fileSize = parseFloat(fileSize.replace('M', ''));
+        if(options.maxFileSize < fileSize) {
+          var message = 'File is larger than the allowed size of ' + options.maxFileSize + ' MB.';
+          errorCallback.call(this, message);
+          var status = {
+            type : 'error',
+            id : options.fileId,
+            message : message
+          };
+          if(self.ws){
+            self.ws.send(JSON.stringify(status), function(error) {
+              if(error) console.log("WS send error:", error);
+            });
+          }
+        } else {
+          startResize();
+        }
+      });
+    }
+    else {
+      startResize();
+    }
 
   });
 
@@ -134,7 +157,7 @@ Uploader.prototype.upload = function(options, successCallback, errorCallback){
         if(error) console.log("WS send error:", error);
       });
     }
-    successCallback.call(uploader, result);
+    successCallback.call(uploader, status);
   });
 
 };
