@@ -48,7 +48,7 @@ Uploader.prototype.resize = function(options, successCallback, errorCallback){
   if(typeof options.source === 'undefined') throw new Error('Uploader.resize: "source" is not defined.');
   if(typeof options.destination === 'undefined') throw new Error('Uploader.resize: "destination" is not defined.');
   // defaults
-  if(typeof options.quality === 'undefined') options.quality = 90;
+  if(typeof options.quality === 'undefined') options.quality = 100;
   if(typeof options.square === 'undefined') options.square = false;
   if(typeof options.noProfile === 'undefined') options.noProfile = true;
   if(typeof options.maxFileSize === 'undefined') options.maxFileSize = false; // unlimited by default
