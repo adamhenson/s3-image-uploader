@@ -233,12 +233,18 @@ var _resize = function(options, size, successCallback, errorCallback){
 
     // if we have size info
     if(typeof size !== 'undefined') {
-      // if the width is more than height we make height null so that
-      // we pass width to be used by gm, so the outcome is
-      // an image with larger width. So the image fully constrains
-      // to width and height parameters while maintaining aspect ratio.
-      if(size.width >= size.height) newHeight = null;
-      else newWidth = null;
+      // if the the image width is larger than height... else height is larger
+      if(size.width >= size.height){
+        // if new height is less than options.height - we're good and we use options.width
+        // as the max value pass to the gm resize function...
+        if((size.height / size.width) * options.width <= options.height) newHeight = null;
+        // ...else we use options.height as the max value to pass into the gm resize
+        else newWidth = null
+      } else {
+        // same logic as if block... just reversed
+        if((size.width / size.height) * options.height <= options.width) newWidth = null;
+        else newHeight = null
+      }
     }
 
     img.resize(newWidth, newHeight);
