@@ -15,6 +15,8 @@ var Uploader = function(options){
   if(typeof options.aws.secret === 'undefined') throw new Error('Uploader: "aws.secret" is not defined.');
 
   this.options = options;
+  // set websocket as false initially
+  this.ws = false;
 
   // create the s3 client
   this.client = s3.createClient({
@@ -31,7 +33,6 @@ Uploader.prototype.websocket = function(){
 
   var self = this;
   var ws = new WebSocketServer({ server: self.options.server });
-  self.ws = false;
 
   ws.on('connection', function(ws) {
     self.ws = ws;
@@ -55,9 +56,10 @@ Uploader.prototype.resize = function(options, successCallback, errorCallback){
 
   var self = this;
 
+  // get image size and execute callback
   _imageSize(options.source, function(err, size){
 
-    var startResize = function(){
+    var _startResize = function(){
       _resize(options, size, function(img, destination){
         var status = {
           type : 'resize',
@@ -91,12 +93,12 @@ Uploader.prototype.resize = function(options, successCallback, errorCallback){
             });
           }
         } else {
-          startResize();
+          _startResize();
         }
       });
     }
     else {
-      startResize();
+      _startResize();
     }
 
   });
@@ -194,7 +196,7 @@ var _writeImage = function(img, options, successCallback, errorCallback){
       successCallback.call(img, options.destination);
     } else {
       errorCallback.call(img, uploadErr);
-      console.log('_resize: problem with resize on write.');
+      console.log('_writeImage: problem on write.');
     }
   });
 
