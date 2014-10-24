@@ -145,6 +145,16 @@ Uploader.prototype.upload = function(options, successCallback, errorCallback){
 
   // on upload error call error callback
   uploader.on('error', function(err){
+    var status = {
+      type : 'error',
+      id : options.fileId,
+      message : 'There was a problem uploading this file.'
+    };
+    if(self.ws){
+      self.ws.send(JSON.stringify(status), function(error) {
+        if(error) console.log("WS send error:", error);
+      });
+    }
     errorCallback.call(uploader, err.stack);
   });
 
@@ -195,8 +205,18 @@ var _writeImage = function(img, options, successCallback, errorCallback){
     if(!uploadErr) {
       successCallback.call(img, options.destination);
     } else {
-      errorCallback.call(img, uploadErr);
       console.log('_writeImage: problem on write.');
+      var status = {
+        type : 'error',
+        id : options.fileId,
+        message : 'There was a problem writing the image.'
+      };
+      if(self.ws){
+        self.ws.send(JSON.stringify(status), function(error) {
+          if(error) console.log("WS send error:", error);
+        });
+      }
+      errorCallback.call(img, uploadErr);
     }
   });
 
