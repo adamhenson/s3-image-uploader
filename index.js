@@ -11,7 +11,7 @@ var gm = require('gm');
 var Uploader = function(options){
 
   var self = this;
-  
+
   if(typeof options.server === 'undefined') throw new Error('Uploader: "server" is not defined.');
   if(typeof options.aws.key === 'undefined') throw new Error('Uploader: "aws.key" is not defined.');
   if(typeof options.aws.secret === 'undefined') throw new Error('Uploader: "aws.secret" is not defined.');
@@ -169,6 +169,37 @@ Uploader.prototype.upload = function(options, successCallback, errorCallback){
     }
     successCallback.call(uploader, status);
   });
+
+};
+
+// Validate file type
+Uploader.prototype.validateType = function(file, id, types){
+
+  var self = this;
+  var valid = false;
+  
+  var contentType = file.headers['content-type'];
+  for(var i in types) {
+    if(types[i] === contentType) {
+      valid = true;
+      break;
+    }
+  }
+
+  if(!valid) {
+    var status = {
+      type : 'error',
+      id : id,
+      message : "The image isn't a valid type."
+    };
+    if(self.ws){
+      self.ws.send(JSON.stringify(status), function(error) {
+        if(error) console.log("WS send error:", error);
+      });
+    }
+  }
+
+  return valid;
 
 };
 
