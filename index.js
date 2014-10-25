@@ -10,32 +10,29 @@ var gm = require('gm');
 // Constructor
 var Uploader = function(options){
 
+  var self = this;
+  
   if(typeof options.server === 'undefined') throw new Error('Uploader: "server" is not defined.');
   if(typeof options.aws.key === 'undefined') throw new Error('Uploader: "aws.key" is not defined.');
   if(typeof options.aws.secret === 'undefined') throw new Error('Uploader: "aws.secret" is not defined.');
 
-  this.options = options;
-  // set websocket as false initially
-  this.ws = false;
+  self.options = options;
+
+  // websockets
+  self.ws = false; // initially
+  if(options.websockets){
+    var ws = new WebSocketServer({ server: self.options.server });
+    ws.on('connection', function(ws) {
+      self.ws = ws;
+    });
+  }
 
   // create the s3 client
-  this.client = s3.createClient({
+  self.client = s3.createClient({
     s3Options: {
-      accessKeyId: this.options.aws.key,
-      secretAccessKey: this.options.aws.secret
+      accessKeyId: self.options.aws.key,
+      secretAccessKey: self.options.aws.secret
     }
-  });
-
-};
-
-// Handle websocket connection
-Uploader.prototype.websocket = function(){
-
-  var self = this;
-  var ws = new WebSocketServer({ server: self.options.server });
-
-  ws.on('connection', function(ws) {
-    self.ws = ws;
   });
 
 };
