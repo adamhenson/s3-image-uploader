@@ -7,7 +7,15 @@ var s3 = require('s3');
 // GraphicsMagick - For image manipulation: https://github.com/aheckmann/gm
 var gm = require('gm');
 
-// Constructor
+/**
+ * Uploader constructor.
+ * @param {object} options - Configuration object. Required.
+ *  {object} options.server - Server object. Required.
+ *  {object} options.aws - aws object. Required.
+ *  {string} options.aws.key - aws key string. Required.
+ *  {string} options.aws.secret - aws secret string. Required.
+ *  {boolean} options.websockets - boolean used to enable websockets (enabled is true). Optional. Default is true.
+ */
 var Uploader = function(options){
 
   var self = this;
@@ -117,7 +125,7 @@ Uploader.prototype.upload = function(options, successCallback, errorCallback){
   var params = {
     localFile: options.source,
     s3Params: {
-      ACL : (typeof self.options.aws.acl !== 'undefined') ? self.options.aws.acl : 'public-read',
+      ACL : (typeof options.acl !== 'undefined') ? options.acl : 'public-read',
       Bucket: options.bucket,
       Key: options.name
     }
@@ -214,6 +222,14 @@ var imageFileSize_ = function(source, callback){
 
 };
 
+/**
+ * @private
+ * A helper function for plusInit_ to retrieve the google plus profile info.
+ * @param {object=} client Google API client.
+ * @param {object=} oauth2Client OAuth 2.0 client.
+ * @param {string} userId Google Plus id.
+ * @param {function=} callback The callback.
+ */
 // Get image size and call callback function
 // Callback returns width and height properties
 var imageSize_ = function(source, callback){
