@@ -45,7 +45,21 @@ var Uploader = function(options){
 
 };
 
-// Resize image and add to destination directory
+/**
+ * Resize image and add to destination directory.
+ * @param {object} options - Configuration object. Required.
+ * @param {function} successCallback - Callback function. Receives one argument - {string} path to resized file. Required.
+ * @param {function} errorCallback - Callback function. Receives one argument - {string} error message. Required.
+ *  {string} options.fileId - Used to uniquely identify file. Required.
+ *  {number} options.width - Maximum width allowed for resized image. Required.
+ *  {number} options.height - Maximum height allowed for resized image. Required.
+ *  {string} options.source - Path to the image to be resized. Required.
+ *  {string} options.destination - Path to new image after resize. Required.
+ *  {number} options.quality - Quality for resized image (1-100... 100 is best). Optional. Default is 100.
+ *  {boolean} options.square - boolean flag set to true if the image needs to be square. Optional. Default is false.
+ *  {boolean} options.noProfile - boolean flag set to true if exif data should be removed (minimizing file size). Optional. Default is true.
+ *  {number || boolean} options.maxFileSize - can be a number or boolean false. The number represents file size in MegaBytes. Optional. Default is false.
+ */
 Uploader.prototype.resize = function(options, successCallback, errorCallback){
 
   if(typeof options.fileId === 'undefined') throw new Error('Uploader.resize: "fileId" is not defined.');
@@ -110,7 +124,16 @@ Uploader.prototype.resize = function(options, successCallback, errorCallback){
 
 };
 
-// Upload to S3
+/**
+ * Upload to S3.
+ * @param {object} options - Configuration object. Required.
+ * @param {function} successCallback - Callback function. Receives one argument - {object} status object. Required.
+ * @param {function} errorCallback - Callback function. Receives one argument - {object} error stack trace. Required.
+ *  {string} options.fileId - Used to uniquely identify file. Required.
+ *  {string} options.bucket - S3 bucket. Required.
+ *  {string} options.source - Path to the image to be uploaded. Required.
+ *  {string} options.name - Name to be used for new file uploaded to S3. Required.
+ */
 Uploader.prototype.upload = function(options, successCallback, errorCallback){
 
   if(typeof options.fileId === 'undefined') throw new Error('Uploader.upload: "fileId" is not defined.');
@@ -180,7 +203,12 @@ Uploader.prototype.upload = function(options, successCallback, errorCallback){
 
 };
 
-// Validate file type
+/**
+ * Validate file type and return boolean of validity.
+ * @param {string} file - Path to file. Required.
+ * @param {string} id - Used to uniquely identify file. Required.
+ * @param {array} types - Array of string file content types (example: ['image/jpeg', 'image/gif', 'image/png']). Required.
+ */
 Uploader.prototype.validateType = function(file, id, types){
 
   var self = this;
@@ -222,14 +250,6 @@ var imageFileSize_ = function(source, callback){
 
 };
 
-/**
- * @private
- * A helper function for plusInit_ to retrieve the google plus profile info.
- * @param {object=} client Google API client.
- * @param {object=} oauth2Client OAuth 2.0 client.
- * @param {string} userId Google Plus id.
- * @param {function=} callback The callback.
- */
 // Get image size and call callback function
 // Callback returns width and height properties
 var imageSize_ = function(source, callback){
@@ -249,7 +269,6 @@ var writeImage_ = function(img, options, successCallback, errorCallback){
     if(!uploadErr) {
       successCallback.call(img, options.destination);
     } else {
-      console.log('writeImage_: problem on write.');
       var status = {
         type : 'error',
         id : options.fileId,
