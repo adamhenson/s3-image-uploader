@@ -97,19 +97,25 @@ Uploader.prototype.resize = function(options, successCallback, errorCallback){
     // if maxFileSize is set - get the filesize info and validate
     if(options.maxFileSize){
       imageFileSize_(options.source, function(err, fileSize){
-        var fileSize = parseFloat(fileSize.replace('M', ''));
-        if(options.maxFileSize < fileSize) {
-          var message = 'File is larger than the allowed size of ' + options.maxFileSize + ' MB.';
-          errorCallback.call(this, message);
-          var status = {
-            type : 'error',
-            id : options.fileId,
-            message : message
-          };
-          if(self.ws){
-            self.ws.send(JSON.stringify(status), function(error) {
-              if(error) console.log("WS send error:", error);
-            });
+        // if 'M' is found then we know it's bigger than 1 mb.
+        // if it's less than 1 mb then we just start resize.
+        if(fileSize.indexOf('M') !== -1) {
+          var fileSize = parseFloat(fileSize.replace('M', ''));
+          if(options.maxFileSize < fileSize) {
+            var message = 'File is larger than the allowed size of ' + options.maxFileSize + ' MB.';
+            errorCallback.call(this, message);
+            var status = {
+              type : 'error',
+              id : options.fileId,
+              message : message
+            };
+            if(self.ws){
+              self.ws.send(JSON.stringify(status), function(error) {
+                if(error) console.log("WS send error:", error);
+              });
+            }
+          } else {
+            startResize_();
           }
         } else {
           startResize_();
