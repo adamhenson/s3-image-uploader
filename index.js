@@ -54,10 +54,10 @@ Uploader.prototype.resize = function(options, successCallback, errorCallback){
   var self = this;
 
   // get image size and execute callback
-  _imageSize(options.source, function(err, size){
+  imageSize_(options.source, function(err, size){
 
-    var _startResize = function(){
-      _resize(options, size, function(img, destination){
+    var startResize_ = function(){
+      resize_(options, size, function(img, destination){
         var status = {
           type : 'resize',
           id : options.fileId,
@@ -74,7 +74,7 @@ Uploader.prototype.resize = function(options, successCallback, errorCallback){
 
     // if maxFileSize is set - get the filesize info and validate
     if(options.maxFileSize){
-      _imageFileSize(options.source, function(err, fileSize){
+      imageFileSize_(options.source, function(err, fileSize){
         var fileSize = parseFloat(fileSize.replace('M', ''));
         if(options.maxFileSize < fileSize) {
           var message = 'File is larger than the allowed size of ' + options.maxFileSize + ' MB.';
@@ -90,12 +90,12 @@ Uploader.prototype.resize = function(options, successCallback, errorCallback){
             });
           }
         } else {
-          _startResize();
+          startResize_();
         }
       });
     }
     else {
-      _startResize();
+      startResize_();
     }
 
   });
@@ -204,10 +204,10 @@ Uploader.prototype.validateType = function(file, id, types){
 };
 
 // Get image file size and call callback function
-var _imageFileSize = function(source, callback){
+var imageFileSize_ = function(source, callback){
 
-  if(typeof source === 'undefined') throw new Error('_imageFileSize: "source" is not defined.');
-  if(typeof callback === 'undefined') throw new Error('_imageFileSize: "callback" is not defined.');
+  if(typeof source === 'undefined') throw new Error('imageFileSize_: "source" is not defined.');
+  if(typeof callback === 'undefined') throw new Error('imageFileSize_: "callback" is not defined.');
   gm(source).filesize(function(err, value){
     callback.call(this, err, value);
   });
@@ -216,10 +216,10 @@ var _imageFileSize = function(source, callback){
 
 // Get image size and call callback function
 // Callback returns width and height properties
-var _imageSize = function(source, callback){
+var imageSize_ = function(source, callback){
 
-  if(typeof source === 'undefined') throw new Error('_imageSize: "source" is not defined.');
-  if(typeof callback === 'undefined') throw new Error('_imageSize: "callback" is not defined.');
+  if(typeof source === 'undefined') throw new Error('imageSize_: "source" is not defined.');
+  if(typeof callback === 'undefined') throw new Error('imageSize_: "callback" is not defined.');
   gm(source).size(function(err, value){
     callback.call(this, err, value);
   });
@@ -227,13 +227,13 @@ var _imageSize = function(source, callback){
 };
 
 // Write image to directory
-var _writeImage = function(img, options, successCallback, errorCallback){
+var writeImage_ = function(img, options, successCallback, errorCallback){
 
   img.write(options.destination, function(uploadErr){
     if(!uploadErr) {
       successCallback.call(img, options.destination);
     } else {
-      console.log('_writeImage: problem on write.');
+      console.log('writeImage_: problem on write.');
       var status = {
         type : 'error',
         id : options.fileId,
@@ -251,7 +251,7 @@ var _writeImage = function(img, options, successCallback, errorCallback){
 };
 
 // Resize image - depends on size and options
-var _resize = function(options, size, successCallback, errorCallback){
+var resize_ = function(options, size, successCallback, errorCallback){
 
   var img = gm(options.source);
 
@@ -307,7 +307,7 @@ var _resize = function(options, size, successCallback, errorCallback){
 
   if(options.noProfile) img.noProfile();
 
-  _writeImage(img, options, successCallback, errorCallback);
+  writeImage_(img, options, successCallback, errorCallback);
 
 };
 
