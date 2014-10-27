@@ -168,3 +168,73 @@ function(errMsg){ //error
 ⋅⋅* {string} options.name - Name to be used for new file uploaded to S3. Required.
 * @param {function} successCallback - Callback function. Receives one argument - {object} status object. Required.
 * @param {function} errorCallback - Callback function. Receives one argument - {object} error stack trace. Required.
+
+## On the Client Side
+
+Please see a [full example here](https://github.com/adamhenson/example-s3-image-uploader/blob/master/public/js/uploader.js).
+
+The most important thing to consider here is that we're receiving ```fileId``` from the server as ```id``` to uniquely identify the upload. On the client side we receive message objects via websockets. Below are examples of different messages we might receive on the client.
+
+> Error message
+
+```javascript
+{
+  type : 'error',
+  id : 'someUniqueIdentifier',
+  message : 'There was a problem uploading this file.'
+}
+```
+
+> Upload progress message
+
+```javascript
+{
+  type : 'progress',
+  id : 'someUniqueIdentifier',
+  progressAmount : 18276653, // represents bytes
+  progressTotal : 20276653 // represents bytes
+}
+```
+
+> Upload success message
+
+```javascript
+{
+  type : 'result',
+  id : 'someUniqueIdentifier',
+  path : '/mybucket/myimage.jpg'
+}
+```
+
+> Resize success message
+
+```javascript
+{
+  type : 'resize',
+  id : 'someUniqueIdentifier',
+  size : '100x100'
+}
+```
+
+So, a simple implementation of this might look something like this.
+
+Make the websocket connection.
+
+```javascript
+var host = window.document.location.host.replace(/:.*/, '');
+var ws = new WebSocket('ws://' + host + ':8080');
+```
+
+Handle messages from the server about the progress of our upload/s and resizing.
+
+```javascript
+ws.onmessage = function(event){
+  var message = JSON.parse(event.data);
+  if(typeof message.type !== 'undefined') {
+    if(message.type === 'progress') // execute code for progress
+    else if(message.type === 'result') // execute code for result
+    else if(message.type === 'resize') // execute code for resize status
+    else if(message.type === 'error') // execute code for error messages
+  }
+};
+```
