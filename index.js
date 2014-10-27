@@ -23,6 +23,8 @@ var Uploader = function(options){
   if(typeof options.server === 'undefined') throw new Error('Uploader: "server" is not defined.');
   if(typeof options.aws.key === 'undefined') throw new Error('Uploader: "aws.key" is not defined.');
   if(typeof options.aws.secret === 'undefined') throw new Error('Uploader: "aws.secret" is not defined.');
+  // default
+  if(typeof options.websockets === 'undefined') options.websockets = true;
 
   self.options = options;
 
