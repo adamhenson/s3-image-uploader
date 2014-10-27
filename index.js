@@ -250,7 +250,7 @@ Uploader.prototype.validateType = function(file, id, types){
     var status = {
       type : 'error',
       id : id,
-      message : "The image isn't a valid type."
+      message : "The file isn't a valid type."
     };
     if(self.ws){
       self.ws.send(JSON.stringify(status), function(error) {
