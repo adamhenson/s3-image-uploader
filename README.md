@@ -6,7 +6,7 @@
 
 ## Installation
 
-Install package with NPM and add it to your dependencies ([ws](https://www.npmjs.org/package/ws))
+Install package with NPM and add it to your dependencies.
 
 ```
 $ npm install s3-image-uploader --save
@@ -14,87 +14,157 @@ $ npm install s3-image-uploader --save
 
 ## Dependencies
 
-When you npm install this module - you also install the depencies (
+When you npm install this module - the module depencies are added ([s3](https://github.com/andrewrk/node-s3-client), [gm](https://github.com/aheckmann/gm),[ws](https://www.npmjs.org/package/ws)), however you'll need to make sure [GraphicsMagick](http://www.graphicsmagick.org/) is installed on your server. GraphicsMagick is the image manipulation library this module uses.
+
+Also, you'll need to pay attention to how you're server handles timeouts.
+
+I used the following code in my Express application to make sure the post didn't timeout:
+
+```javascript
+app.post('/post-image', function(req, res, next){
+
+  res.connection.setTimeout(0); // this could take a while
+  // code to execute post here
+
+});
+```
 
 ## Usage
 
-### Grunt
+Below is the basic configuration, but you can see [full example code here](https://github.com/adamhenson/example-s3-image-uploader)
 
-Once the plugin has been installed, it may be enabled inside your Gruntfile with this line of JavaScript:
+### Server Side (Node)
+
+Include the module.
 
 ```javascript
-grunt.loadNpmTasks('mongobackup');
+var Uploader = require('node-s3-uploader');
 ```
 
-Configure via `grunt.initConfig()`.
+#### Instantiation
+Instantiate the uploader with options. Note that if we didn't want to use websockets functionality - we's add to our options ```websockets : false```.
+
+Also, note that we're using properties of the user [environment](http://nodejs.org/api/process.html#process_process_env), but these could be variables or hard coded if preferred (not ideal for security).
 
 ```javascript
-grunt.initConfig({
-  mongobackup: {
-    dump : {
-      options: {
-        host : 'localhost',
-        out : './dumps/mongo'
-      }
-    },
-    restore: {
-      options: {
-        host : 'localhost',
-        drop : true,
-        path : './dumps/mongo/testdb'
-      }
-    }
-  }
+var uploader = new Uploader({
+  aws : {
+    key : process.env.NODE_AWS_KEY,
+    secret : process.env.NODE_AWS_SECRET
+  },
+  server : server
 });
 ```
 
-Then run:
+#### Resize
 
-```
-$ grunt mongobackup:dump
-```
+Width and height is used as the maximum size for the dimension. After resize the image will not have a width larger than specified and vice versa for height. Aspect ratio is maintained. If ```square : true``` is set and width/height is equal, the smaller dimension will be sized down and the larger will be trimmed off outside of the center.
 
-Or:
-
-```
-$ grunt mongobackup:restore
-```
-
-### Gulp
+```fileId``` is important for the websockets functionality. It's referenced in messages sent to the client about the status. Therefore you may want to use this same identifier as a DOM selector in your client side code (maybe a data attribute) to target visual representations of the messages.
 
 ```javascript
-var mongobackup = require('mongobackup');
-
-// mongodump - dump all databases on localhost
-gulp.task('mongodump', function() {
-  mongobackup.dump({
-    host : 'localhost',
-    out : './dumps/mongo'
-  });
-});
-
-// mongorestore - restore 'testdb' database to localhost
-gulp.task('mongorestore', function() {
-  mongobackup.restore({
-    host : 'localhost',
-    drop : true,
-    path : './dumps/mongo/testdb'
-  });
+uploader.resize({
+  fileId : 'someUniqueIdentifier',
+  width : 600,
+  height : 400,
+  source : './public/tmp/myoldimage.jpg',
+  destination : './public/uploads/mynewimage.jpg'
+}, function(destination){
+  console.error('resize success - new image here: ', destination);
+  // execute success code
+}, function(errMsg){
+  console.error('unable to resize: ', errMsg);
+  // execute error code
 });
 ```
 
-Then run:
+#### Validate File Type
 
-```
-$ gulp mongodump
+This validates the content type referenced in the header of the file.
+
+```fileId``` is again referenced in messages sent to the client about the status.
+
+```javascript
+if(uploader.validateType(file, fileId, ['image/jpeg', 'image/gif', 'image/png'])) {
+  console.log('validation passed!');
+  // execute success code
+}
 ```
 
-Or:
+#### Get Exif Data
 
+Get the exif data object.
+
+```javascript
+uploader.getExifData(filePath, function(data){
+
+  // normally I'd do something with this... like store it in a database
+  console.log('exif data', data);
+
+});
 ```
-$ gulp mongorestore
+
+#### Upload
+
+Upload the file to s3.
+
+```fileId``` is again referenced in messages sent to the client about the status.
+
+```javascript
+uploader.upload({
+  fileId : 'someUniqueIdentifier',
+  bucket : 'somebucket',
+  source : './public/tmp/myoldimage.jpg',
+  name : 'mynewimage.jpg'
+},
+function(data){ // success
+  console.log('upload success:', data);
+  // execute success code
+},
+function(errMsg){ //error
+  console.error('unable to upload: ' + errMsg);
+  // execute error code
+});
 ```
 
 ## Options
 
-- Any provided options are passed to [mongodump](http://docs.mongodb.org/manual/reference/program/mongodump/) and [mongorestore](http://docs.mongodb.org/manual/reference/program/mongorestore/). The boolean value `true` should be used for options that don't accept a passed value, per the docs linked in the previous sentence.
+### new Uploader
+* @param {object} options - Configuration object. Required.
+⋅⋅* {object} options.server - Server object. Required.
+⋅⋅* {object} options.aws - aws object. Required.
+⋅⋅* {string} options.aws.key - aws key string. Required.
+⋅⋅* {string} options.aws.secret - aws secret string. Required.
+⋅⋅* {boolean} options.websockets - boolean used to enable websockets (enabled is true). Optional. Default is true.
+
+### resize
+* @param {object} options - Configuration object. Required.
+⋅⋅* {string} options.fileId - Used to uniquely identify file. Required.
+⋅⋅* {number} options.width - Maximum width allowed for resized image. Required.
+⋅⋅* {number} options.height - Maximum height allowed for resized image. Required.
+⋅⋅* {string} options.source - Path to the image to be resized. Required.
+⋅⋅* {string} options.destination - Path to new image after resize. Required.
+⋅⋅* {number} options.quality - Quality for resized image (1-100... 100 is best). Optional. Default is 100.
+⋅⋅* {boolean} options.square - boolean flag set to true if the image needs to be square. Optional. Default is false.
+⋅⋅* {boolean} options.noProfile - boolean flag set to true if exif data should be removed (minimizing file size). Optional. Default is true.
+⋅⋅* {number || boolean} options.maxFileSize - can be a number or boolean false. The number represents file size in MegaBytes. Optional. Default is false.
+* @param {function} successCallback - Callback function. Receives one argument - {string} path to resized file. Required.
+* @param {function} errorCallback - Callback function. Receives one argument - {string} error message. Required.
+
+### validateType
+* @param {object} file - Post object. Required.
+* @param {string} id - Used to uniquely identify file. Required.
+* @param {array} types - Array of string file content types (example: ['image/jpeg', 'image/gif', 'image/png']). Required.
+
+### getExifData
+* @param {string} source - Path of image. Required.
+* @param {function} callback - Callback that receives argument of false or data object. Required.
+
+### upload
+* @param {object} options - Configuration object. Required.
+⋅⋅* {string} options.fileId - Used to uniquely identify file. Required.
+⋅⋅* {string} options.bucket - S3 bucket. Required.
+⋅⋅* {string} options.source - Path to the image to be uploaded. Required.
+⋅⋅* {string} options.name - Name to be used for new file uploaded to S3. Required.
+* @param {function} successCallback - Callback function. Receives one argument - {object} status object. Required.
+* @param {function} errorCallback - Callback function. Receives one argument - {object} error stack trace. Required.
