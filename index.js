@@ -210,8 +210,26 @@ Uploader.prototype.upload = function(options, successCallback, errorCallback){
 };
 
 /**
+ * Get the Exif data of a file.
+ * @param {string} source - Path of image. Required.
+ * @param {function} callback - Callback that receives argument of false or data object. Required.
+ */
+Uploader.prototype.getExifData = function(source, callback){
+
+  gm(source)
+    .identify(function (dataErr, data) {
+      if (!dataErr) {
+        callback.call(this, data);
+      } else { // no exif data
+        callback.call(this, false);
+      }
+    });
+
+};
+
+/**
  * Validate file type and return boolean of validity.
- * @param {string} file - Path to file. Required.
+ * @param {object} file - Post object. Required.
  * @param {string} id - Used to uniquely identify file. Required.
  * @param {array} types - Array of string file content types (example: ['image/jpeg', 'image/gif', 'image/png']). Required.
  */
