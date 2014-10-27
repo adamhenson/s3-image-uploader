@@ -131,23 +131,23 @@ function(errMsg){ //error
 
 ### new Uploader
 * @param {object} options - Configuration object. Required.
-⋅⋅* {object} options.server - Server object. Required.
-⋅⋅* {object} options.aws - aws object. Required.
-⋅⋅* {string} options.aws.key - aws key string. Required.
-⋅⋅* {string} options.aws.secret - aws secret string. Required.
-⋅⋅* {boolean} options.websockets - boolean used to enable websockets (enabled is true). Optional. Default is true.
+  * {object} options.server - Server object. Required.
+  * {object} options.aws - aws object. Required.
+  * {string} options.aws.key - aws key string. Required.
+  * {string} options.aws.secret - aws secret string. Required.
+  * {boolean} options.websockets - boolean used to enable websockets (enabled is true). Optional. Default is true.
 
 ### resize
 * @param {object} options - Configuration object. Required.
-⋅⋅* {string} options.fileId - Used to uniquely identify file. Required.
-⋅⋅* {number} options.width - Maximum width allowed for resized image. Required.
-⋅⋅* {number} options.height - Maximum height allowed for resized image. Required.
-⋅⋅* {string} options.source - Path to the image to be resized. Required.
-⋅⋅* {string} options.destination - Path to new image after resize. Required.
-⋅⋅* {number} options.quality - Quality for resized image (1-100... 100 is best). Optional. Default is 100.
-⋅⋅* {boolean} options.square - boolean flag set to true if the image needs to be square. Optional. Default is false.
-⋅⋅* {boolean} options.noProfile - boolean flag set to true if exif data should be removed (minimizing file size). Optional. Default is true.
-⋅⋅* {number || boolean} options.maxFileSize - can be a number or boolean false. The number represents file size in MegaBytes. Optional. Default is false.
+  * {string} options.fileId - Used to uniquely identify file. Required.
+  * {number} options.width - Maximum width allowed for resized image. Required.
+  * {number} options.height - Maximum height allowed for resized image. Required.
+  * {string} options.source - Path to the image to be resized. Required.
+  * {string} options.destination - Path to new image after resize. Required.
+  * {number} options.quality - Quality for resized image (1-100... 100 is best). Optional. Default is 100.
+  * {boolean} options.square - boolean flag set to true if the image needs to be square. Optional. Default is false.
+  * {boolean} options.noProfile - boolean flag set to true if exif data should be removed (minimizing file size). Optional. Default is true.
+  * {number || boolean} options.maxFileSize - can be a number or boolean false. The number represents file size in MegaBytes. Optional. Default is false.
 * @param {function} successCallback - Callback function. Receives one argument - {string} path to resized file. Required.
 * @param {function} errorCallback - Callback function. Receives one argument - {string} error message. Required.
 
@@ -162,10 +162,10 @@ function(errMsg){ //error
 
 ### upload
 * @param {object} options - Configuration object. Required.
-⋅⋅* {string} options.fileId - Used to uniquely identify file. Required.
-⋅⋅* {string} options.bucket - S3 bucket. Required.
-⋅⋅* {string} options.source - Path to the image to be uploaded. Required.
-⋅⋅* {string} options.name - Name to be used for new file uploaded to S3. Required.
+  * {string} options.fileId - Used to uniquely identify file. Required.
+  * {string} options.bucket - S3 bucket. Required.
+  * {string} options.source - Path to the image to be uploaded. Required.
+  * {string} options.name - Name to be used for new file uploaded to S3. Required.
 * @param {function} successCallback - Callback function. Receives one argument - {object} status object. Required.
 * @param {function} errorCallback - Callback function. Receives one argument - {object} error stack trace. Required.
 
