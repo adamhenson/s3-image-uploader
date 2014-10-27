@@ -1,10 +1,10 @@
 'use strict';
 
-// WS - A Websocket library: https://www.npmjs.org/package/ws
+// ws - A Websocket library: https://www.npmjs.org/package/ws
 var WebSocketServer = require('ws').Server;
 // Let's not re-invent the wheel. A high level S3 uploader: https://www.npmjs.org/package/s3
 var s3 = require('s3');
-// GraphicsMagick - For image manipulation: https://github.com/aheckmann/gm
+// gm (GraphicsMagick) - For image manipulation: https://github.com/aheckmann/gm
 var gm = require('gm');
 
 /**
