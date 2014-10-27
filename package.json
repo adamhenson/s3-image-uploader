@@ -1,18 +1,18 @@
 {
-  "name": "node-s3-uploader",
-  "description": "An Amazon S3 uploader, and progress bar that utilizes websockets.",
+  "name": "s3-image-uploader",
+  "description": "A Node.js module for resizing, and uploading files to Amazon S3 with capability to track progress using websockets.",
   "version": "0.0.1",
   "author": {
     "name": "Adam Henson",
     "email": "adamhenson1979@gmail.com"
   },
   "bugs": {
-    "url": "https://github.com/adamhenson/node-s3-uploader/issues"
+    "url": "https://github.com/adamhenson/s3-image-uploader/issues"
   },
   "engines": {
     "node": ">= 0.10"
   },
-  "homepage": "https://github.com/adamhenson/node-s3-uploader/issues",
+  "homepage": "https://github.com/adamhenson/s3-image-uploader/issues",
   "keywords": [
     "s3",
     "websockets",
@@ -23,7 +23,7 @@
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/adamhenson/node-s3-uploader.git"
+    "url": "https://github.com/adamhenson/s3-image-uploader.git"
   },
   "dependencies": {
     "ws": "~0.4.32",
