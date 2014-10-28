@@ -2,7 +2,7 @@
 
 > A Node.js module for resizing, and uploading files to Amazon S3 with capability to track progress using websockets.
 >
-> This module was created to use with little setup and customization as it's merely a wrapper of the [AWS SDK](http://aws.amazon.com/sdk-for-node-js/) and [gm](https://github.com/aheckmann/gm). This module also utilizes [Websockets](https://github.com/einaros/ws), which can be optionally enabled to allow the server to send the client messages such as file upload completion and upload progress.
+> This module was created to use with little setup and customization as it's simply a wrapper of [AWS SDK](http://aws.amazon.com/sdk-for-node-js/) and [gm](https://github.com/aheckmann/gm). This module also utilizes [Websockets](https://github.com/einaros/ws), which can be optionally enabled to allow the server to send the client messages such as file upload completion and upload progress.
 
 ## Installation
 
@@ -14,7 +14,7 @@ $ npm install s3-image-uploader --save
 
 ## Dependencies
 
-When you npm install this module - the module depencies are added ([s3](https://github.com/andrewrk/node-s3-client), [gm](https://github.com/aheckmann/gm),[ws](https://www.npmjs.org/package/ws)), however you'll need to make sure [GraphicsMagick](http://www.graphicsmagick.org/) is installed on your server. GraphicsMagick is the image manipulation library this module uses.
+When you npm install this module - the module dependencies are added ([s3](https://github.com/andrewrk/node-s3-client), [gm](https://github.com/aheckmann/gm), [ws](https://www.npmjs.org/package/ws)), however you'll need to make sure [GraphicsMagick](http://www.graphicsmagick.org/) is installed on your server. GraphicsMagick is the image manipulation library this module uses.
 
 Also, you'll need to pay attention to how you're server handles timeouts.
 
@@ -42,7 +42,7 @@ var Uploader = require('node-s3-uploader');
 ```
 
 #### Instantiation
-Instantiate the uploader with options. Note that if we didn't want to use websockets functionality - we's add to our options ```websockets : false```.
+Instantiate the uploader with options. Note that if we didn't want to use websockets functionality - we would add to our options ```websockets : false```.
 
 Also, note that we're using properties of the user [environment](http://nodejs.org/api/process.html#process_process_env), but these could be variables or hard coded if preferred (not ideal for security).
 
@@ -58,7 +58,7 @@ var uploader = new Uploader({
 
 #### Resize
 
-Width and height is used as the maximum size for the dimension. After resize the image will not have a width larger than specified and vice versa for height. Aspect ratio is maintained. If ```square : true``` is set and width/height is equal, the smaller dimension will be sized down and the larger will be trimmed off outside of the center.
+Width and height options denote the maximum size for the dimension. After resize the image will not have a width larger than specified and vice versa for height. Aspect ratio is maintained. If ```square : true``` is set and width/height are equal, the smaller dimension will be sized down and the larger will be trimmed off outside of the center.
 
 ```fileId``` is important for the websockets functionality. It's referenced in messages sent to the client about the status. Therefore you may want to use this same identifier as a DOM selector in your client side code (maybe a data attribute) to target visual representations of the messages.
 
@@ -173,7 +173,7 @@ function(errMsg){ //error
 
 Please see a [full example here](https://github.com/adamhenson/example-s3-image-uploader/blob/master/public/js/uploader.js).
 
-The most important thing to consider here is that we're receiving ```fileId``` from the server as ```id``` to uniquely identify the upload. On the client side we receive message objects via websockets. Below are examples of different messages we might receive on the client.
+The most important thing to consider here is that we're receiving ```fileId``` from the server as ```id``` to uniquely identify the upload. We receive message objects via websockets. Below are examples of different messages we might receive on the client.
 
 > Error message
 
@@ -191,8 +191,8 @@ The most important thing to consider here is that we're receiving ```fileId``` f
 {
   type : 'progress',
   id : 'someUniqueIdentifier',
-  progressAmount : 18276653, // represents bytes
-  progressTotal : 20276653 // represents bytes
+  progressAmount : 5276653, // represents bytes
+  progressTotal : 6276653 // represents bytes
 }
 ```
 
