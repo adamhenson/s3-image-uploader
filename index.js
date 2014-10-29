@@ -291,24 +291,9 @@ var imageSize_ = function(source, callback){
 // Write image to directory
 var writeImage_ = function(img, options, successCallback, errorCallback){
 
-  var self = this;
-
   img.write(options.destination, function(uploadErr){
-    if(!uploadErr) {
-      successCallback.call(img, options.destination);
-    } else {
-      var status = {
-        type : 'error',
-        id : options.fileId,
-        message : 'There was a problem writing the image.'
-      };
-      if(self.ws){
-        self.ws.send(JSON.stringify(status), function(error) {
-          if(error) console.log("WS send error:", error);
-        });
-      }
-      errorCallback.call(img, uploadErr);
-    }
+    if(!uploadErr) successCallback.call(img, options.destination);
+    else errorCallback.call(img, uploadErr);
   });
 
 };
