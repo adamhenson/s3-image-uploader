@@ -166,6 +166,7 @@ function(errMsg){ //error
   * {string} options.bucket - S3 bucket. Required.
   * {string} options.source - Path to the image to be uploaded. Required.
   * {string} options.name - Name to be used for new file uploaded to S3. Required.
+  * {number || boolean} options.maxFileSize - can be a number or boolean false. The number represents file size in MegaBytes. Optional. Default is false.
 * @param {function} successCallback - Callback function. Receives one argument - {object} status object. Required.
 * @param {function} errorCallback - Callback function. Receives one argument - {object} error stack trace. Required.
 

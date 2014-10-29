@@ -11,3 +11,7 @@
 ## 0.0.8
 
 - Allow resize of only one side (width or height), and the other side to be sized according to aspect ratio. Also, remove logging.
+
+## 0.0.9
+
+- Allow max file size on upload function.

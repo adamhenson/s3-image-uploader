@@ -81,49 +81,44 @@ Uploader.prototype.resize = function(options, successCallback, errorCallback){
   imageSize_(options.source, function(err, size){
 
     var startResize_ = function(){
+
       resize_(options, size, function(img, destination){
+
         var status = {
           type : 'resize',
           id : options.fileId,
           size : options.width + 'x' + options.height
         };
-        if(self.ws){
-          self.ws.send(JSON.stringify(status));
-        }
+
+        if(self.ws) self.ws.send(JSON.stringify(status));
+
         successCallback.call(img, destination);
+
       }, errorCallback);
+
     };
 
     // if maxFileSize is set - get the filesize info and validate
     if(options.maxFileSize){
-      imageFileSize_(options.source, function(err, fileSize){
-        // if 'M' is found then we know it's bigger than 1 mb.
-        // if it's less than 1 mb then we just start resize.
-        if(fileSize.indexOf('M') !== -1) {
-          var fileSize = parseFloat(fileSize.replace('M', ''));
-          if(options.maxFileSize < fileSize) {
-            var message = 'File is larger than the allowed size of ' + options.maxFileSize + ' MB.';
-            errorCallback.call(this, message);
-            var status = {
-              type : 'error',
-              id : options.fileId,
-              message : message
-            };
-            if(self.ws){
-              self.ws.send(JSON.stringify(status), function(error) {
-                if(error) console.log("WS send error:", error);
-              });
-            }
-          } else {
-            startResize_();
-          }
-        } else {
-          startResize_();
-        }
+
+      validateImageFileSize_(options, startResize_, function(message){
+
+        var status = {
+          type : 'error',
+          id : options.fileId,
+          message : message
+        };
+
+        if(self.ws) self.ws.send(JSON.stringify(status));
+
+        errorCallback.call(this, message);
+
       });
-    }
-    else {
+
+    } else {
+
       startResize_();
+
     }
 
   });
@@ -139,6 +134,7 @@ Uploader.prototype.resize = function(options, successCallback, errorCallback){
  *  {string} options.bucket - S3 bucket. Required.
  *  {string} options.source - Path to the image to be uploaded. Required.
  *  {string} options.name - Name to be used for new file uploaded to S3. Required.
+ *  {number || boolean} options.maxFileSize - can be a number or boolean false. The number represents file size in MegaBytes. Optional. Default is false.
  */
 Uploader.prototype.upload = function(options, successCallback, errorCallback){
 
@@ -160,46 +156,71 @@ Uploader.prototype.upload = function(options, successCallback, errorCallback){
     }
   };
 
-  var uploader = this.client.uploadFile(params);
+  var initialize_ = function(){
 
-  // when there is progress send a message through our websocket connection
-  uploader.on('progress', function(){
-    var status = {
-      type : 'progress',
-      id : options.fileId,
-      progressAmount : uploader.progressAmount,
-      progressTotal : uploader.progressTotal
-    };
-    if(self.ws){
-      self.ws.send(JSON.stringify(status));
-    }
-  });
+    var uploader = self.client.uploadFile(params);
 
-  // on upload error call error callback
-  uploader.on('error', function(err){
-    var status = {
-      type : 'error',
-      id : options.fileId,
-      message : 'There was a problem uploading this file.'
-    };
-    if(self.ws){
-      self.ws.send(JSON.stringify(status));
-    }
-    errorCallback.call(uploader, err.stack);
-  });
+    // when there is progress send a message through our websocket connection
+    uploader.on('progress', function(){
+      var status = {
+        type : 'progress',
+        id : options.fileId,
+        progressAmount : uploader.progressAmount,
+        progressTotal : uploader.progressTotal
+      };
+      if(self.ws) self.ws.send(JSON.stringify(status));
+    });
 
-  // when the upload has finished call the success callback and send a message through our websocket
-  uploader.on('end', function(obj){
-    var status = {
-      type : 'result',
-      id : options.fileId,
-      path : '/' + options.bucket + '/' + options.name
-    };
-    if(self.ws){
-      self.ws.send(JSON.stringify(status));
-    }
-    successCallback.call(uploader, status);
-  });
+    // on upload error call error callback
+    uploader.on('error', function(err){
+      var status = {
+        type : 'error',
+        id : options.fileId,
+        message : 'There was a problem uploading this file.'
+      };
+      if(self.ws) self.ws.send(JSON.stringify(status));
+      errorCallback.call(uploader, err.stack);
+    });
+
+    // when the upload has finished call the success callback and send a message through our websocket
+    uploader.on('end', function(obj){
+      var status = {
+        type : 'result',
+        id : options.fileId,
+        path : '/' + options.bucket + '/' + options.name
+      };
+      if(self.ws) self.ws.send(JSON.stringify(status));
+      successCallback.call(uploader, status);
+    });
+
+  };
+
+  // if maxFileSize is set - get the filesize info and validate
+  if(options.maxFileSize){
+
+    validateImageFileSize_(options, function(){
+
+      initialize_();
+
+    }, function(message){
+
+      var status = {
+        type : 'error',
+        id : options.fileId,
+        message : message
+      };
+
+      if(self.ws) self.ws.send(JSON.stringify(status));
+
+      errorCallback.call(this, message);
+
+    });
+
+  } else {
+
+    initialize_();
+
+  }
 
 };
 
@@ -246,9 +267,7 @@ Uploader.prototype.validateType = function(file, id, types){
       id : id,
       message : "The file isn't a valid type."
     };
-    if(self.ws){
-      self.ws.send(JSON.stringify(status));
-    }
+    if(self.ws) self.ws.send(JSON.stringify(status));
   }
 
   return valid;
@@ -256,12 +275,42 @@ Uploader.prototype.validateType = function(file, id, types){
 };
 
 // Get image file size and call callback function
-var imageFileSize_ = function(source, callback){
+var validateImageFileSize_ = function(options, successCallback, errorCallback){
 
-  if(typeof source === 'undefined') throw new Error('imageFileSize_: "source" is not defined.');
-  if(typeof callback === 'undefined') throw new Error('imageFileSize_: "callback" is not defined.');
-  gm(source).filesize(function(err, value){
-    callback.call(this, err, value);
+  gm(options.source).filesize(function(err, fileSize){
+
+    var validate_ = function(size){
+      if(options.maxFileSize < size) {
+        var message = 'File is larger than the allowed size of ' + options.maxFileSize + ' MB.';
+        errorCallback.call(this, message);
+      } else {
+        successCallback.call(this);
+      }
+    };
+
+    if(err){
+
+      errorCallback.call(this, err);
+
+    } else {
+
+      if(fileSize.indexOf('M') !== -1) {
+        var fileSize = fileSize.replace('M', '');
+        validate_(fileSize);
+      } else if(fileSize.indexOf('K') !== -1){
+        var fileSize = fileSize.replace('K', '');
+        fileSize = parseFloat(fileSize/1024).toFixed(2);
+        validate_(fileSize);
+      } else if(fileSize.indexOf('G') !== -1){
+        var fileSize = fileSize.replace('G', '');
+        fileSize = parseFloat(fileSize*1024).toFixed(2);
+        validate_(fileSize);
+      } else {
+        successCallback.call(this);
+      }
+
+    }
+
   });
 
 };
@@ -270,8 +319,6 @@ var imageFileSize_ = function(source, callback){
 // Callback returns width and height properties
 var imageSize_ = function(source, callback){
 
-  if(typeof source === 'undefined') throw new Error('imageSize_: "source" is not defined.');
-  if(typeof callback === 'undefined') throw new Error('imageSize_: "callback" is not defined.');
   gm(source).size(function(err, value){
     callback.call(this, err, value);
   });
