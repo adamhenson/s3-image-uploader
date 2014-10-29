@@ -1,5 +1,5 @@
 # changelog
 
-## 0.1.2
+## 0.0.6
 
-- Coming soon... dun dun dun dunnnnn
+- Fix bug. Define 'self' in 'writeImage_'.

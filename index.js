@@ -291,6 +291,8 @@ var imageSize_ = function(source, callback){
 // Write image to directory
 var writeImage_ = function(img, options, successCallback, errorCallback){
 
+  var self = this;
+
   img.write(options.destination, function(uploadErr){
     if(!uploadErr) {
       successCallback.call(img, options.destination);
