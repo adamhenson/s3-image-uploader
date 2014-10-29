@@ -58,7 +58,7 @@ var uploader = new Uploader({
 
 #### Resize
 
-Width and height options denote the maximum size for the dimension. After resize the image will not have a width larger than specified and vice versa for height. Aspect ratio is maintained. If ```square : true``` is set and width/height are equal, the smaller dimension will be sized down and the larger will be trimmed off outside of the center.
+Width and height options denote the maximum size for the dimension (will be exact if the other dimension is set to 'auto'... but upsizing will not happen). If not defined or set to 'auto' - the dimension will be resized based on aspect ratio of the other. Aspect ratio is always maintained. If ```square : true``` is set and width/height are equal, the smaller dimension will be sized down and the larger will be trimmed off outside of the center.
 
 ```fileId``` is important for the websockets functionality. It's referenced in messages sent to the client about the status. Therefore you may want to use this same identifier as a DOM selector in your client side code (maybe a data attribute) to target visual representations of the messages.
 
@@ -66,7 +66,7 @@ Width and height options denote the maximum size for the dimension. After resize
 uploader.resize({
   fileId : 'someUniqueIdentifier',
   width : 600,
-  height : 400,
+  height : 'auto',
   source : './public/tmp/myoldimage.jpg',
   destination : './public/uploads/mynewimage.jpg'
 }, function(destination){
@@ -140,8 +140,8 @@ function(errMsg){ //error
 ### resize
 * @param {object} options - Configuration object. Required.
   * {string} options.fileId - Used to uniquely identify file. Required.
-  * {number} options.width - Maximum width allowed for resized image. Required.
-  * {number} options.height - Maximum height allowed for resized image. Required.
+  * {number || 'auto'} options.width - Maximum width allowed for resized image. Otherwise if not defined or set to 'auto' - width will be resized based on aspect ratio of height. Optional. Default is 'auto'.
+  * {number || 'auto'} options.height - Maximum height allowed for resized image. Otherwise if not defined or set to 'auto' - height will be resized based on aspect ratio of width. Optional. Default is 'auto'.
   * {string} options.source - Path to the image to be resized. Required.
   * {string} options.destination - Path to new image after resize. Required.
   * {number} options.quality - Quality for resized image (1-100... 100 is best). Optional. Default is 100.
