@@ -8,6 +8,71 @@ var s3 = require('s3');
 var gm = require('gm');
 
 /**
+ * Websocket constructor.
+ * @param {object} options - Object for options. Required.
+ */
+function Websocket(options){
+  // the default ws connection object
+  this.ws = {
+    readyState : 0
+  };
+  // more defaults and options
+  this.wss = false;
+  this.server = options.server;
+  this.port = (options.port)
+    ? options.port
+    : false;
+  this.log = (options.log)
+    ? options.log
+    : false;
+};
+
+/**
+ * Start the WebSocket connection.
+ */
+Websocket.prototype.start = function(){
+
+  var self = this;
+  var options = {
+    'server' : self.server,
+  };
+  if(self.port) options.port = self.port;
+  if(!self.wss) self.wss = new WebSocketServer(options);
+
+  // bind to the connection event
+  self.wss.on('connection', function connection(ws) {
+    if(self.log) console.log('s3-image-uploader: Websocket: websocket connected');
+    ws.on('close', function close() {
+      if(self.log) console.log('s3-image-uploader: Websocket: websocket disconnected');
+    });
+    // assign the connection object to the instance
+    self.ws = ws;
+  });
+
+};
+
+/**
+ * Send message to client
+ * @param {object || string || boolean} message - Message to send to client. Required.
+ * @param {function} callback - Callback function.
+ */
+Websocket.prototype.send = function(message, callback){
+
+  var self = this;
+
+  // if the connection is open (readyState 1) - send messages
+  if(self.ws.readyState === 1) {
+    self.ws.send(message, function sendError(err){
+      if(typeof err !== 'undefined') console.log('s3-image-uploader: Websocket.send: ws send error.', err.stack); 
+      if(typeof callback !== 'undefined') callback();
+    });
+  } else {
+    if(typeof callback !== 'undefined') callback();
+  }
+
+};
+
+/**
  * Uploader constructor.
  * @param {object} options - Configuration object. Required.
  *  {object} options.server - Server object. Required.
@@ -20,21 +85,25 @@ var Uploader = function(options){
 
   var self = this;
 
-  if(typeof options.server === 'undefined') throw new Error('Uploader: "server" is not defined.');
-  if(typeof options.aws.key === 'undefined') throw new Error('Uploader: "aws.key" is not defined.');
-  if(typeof options.aws.secret === 'undefined') throw new Error('Uploader: "aws.secret" is not defined.');
+  if(typeof options.server === 'undefined') throw new Error('s3-image-uploader: Uploader: "server" is not defined.');
+  if(typeof options.aws.key === 'undefined') throw new Error('s3-image-uploader: Uploader: "aws.key" is not defined.');
+  if(typeof options.aws.secret === 'undefined') throw new Error('s3-image-uploader: Uploader: "aws.secret" is not defined.');
   // default
   if(typeof options.websockets === 'undefined') options.websockets = true;
+  if(typeof options.port === 'undefined') options.port = false;
+  if(typeof options.log === 'undefined') options.log = true;
 
   self.options = options;
 
   // websockets
-  self.ws = false; // initially
-  if(options.websockets){
-    var ws = new WebSocketServer({ server: self.options.server });
-    ws.on('connection', function(ws) {
-      self.ws = ws;
-    });
+  if(options.websockets) {
+    var webSocketOptions = {
+      'server' : self.options.server,
+    };
+    if(options.port) webSocketOptions.port = options.port;
+    if(options.log) webSocketOptions.log = options.log;
+    self.ws = new Websocket(webSocketOptions);
+    self.ws.start();
   }
 
   // create the s3 client
@@ -64,9 +133,9 @@ var Uploader = function(options){
  */
 Uploader.prototype.resize = function(options, successCallback, errorCallback){
 
-  if(typeof options.fileId === 'undefined') throw new Error('Uploader.resize: "fileId" is not defined.');
-  if(typeof options.source === 'undefined') throw new Error('Uploader.resize: "source" is not defined.');
-  if(typeof options.destination === 'undefined') throw new Error('Uploader.resize: "destination" is not defined.');
+  if(typeof options.fileId === 'undefined') throw new Error('s3-image-uploader: Uploader.resize: "fileId" is not defined.');
+  if(typeof options.source === 'undefined') throw new Error('s3-image-uploader: Uploader.resize: "source" is not defined.');
+  if(typeof options.destination === 'undefined') throw new Error('s3-image-uploader: Uploader.resize: "destination" is not defined.');
   // defaults
   if(typeof options.width === 'undefined') options.width = 'auto';
   if(typeof options.height === 'undefined') options.height = 'auto';
@@ -90,9 +159,13 @@ Uploader.prototype.resize = function(options, successCallback, errorCallback){
           size : options.width + 'x' + options.height
         };
 
-        if(self.ws) self.ws.send(JSON.stringify(status));
-
-        successCallback.call(img, destination);
+        if(self.ws){
+          self.ws.send(JSON.stringify(status), function(){
+            successCallback(destination);
+          });
+        } else {
+          successCallback(destination);
+        }
 
       }, errorCallback);
 
@@ -109,9 +182,13 @@ Uploader.prototype.resize = function(options, successCallback, errorCallback){
           message : message
         };
 
-        if(self.ws) self.ws.send(JSON.stringify(status));
-
-        errorCallback.call(this, message);
+        if(self.ws){
+          self.ws.send(JSON.stringify(status), function(){
+            errorCallback(message);
+          });
+        } else {
+          errorCallback(message);
+        }
 
       });
 
@@ -138,12 +215,12 @@ Uploader.prototype.resize = function(options, successCallback, errorCallback){
  */
 Uploader.prototype.upload = function(options, successCallback, errorCallback){
 
-  if(typeof options.fileId === 'undefined') throw new Error('Uploader.upload: "fileId" is not defined.');
-  if(typeof options.bucket === 'undefined') throw new Error('Uploader.upload: "bucket" is not defined.');
-  if(typeof options.source === 'undefined') throw new Error('Uploader.upload: "source" is not defined.');
-  if(typeof options.name === 'undefined') throw new Error('Uploader.upload: "name" is not defined.');
-  if(typeof successCallback === 'undefined') throw new Error('Uploader.upload: "successCallback" is not defined.');
-  if(typeof errorCallback === 'undefined') throw new Error('Uploader.upload: "errorCallback" is not defined.');
+  if(typeof options.fileId === 'undefined') throw new Error('s3-image-uploader: Uploader.upload: "fileId" is not defined.');
+  if(typeof options.bucket === 'undefined') throw new Error('s3-image-uploader: Uploader.upload: "bucket" is not defined.');
+  if(typeof options.source === 'undefined') throw new Error('s3-image-uploader: Uploader.upload: "source" is not defined.');
+  if(typeof options.name === 'undefined') throw new Error('s3-image-uploader: Uploader.upload: "name" is not defined.');
+  if(typeof successCallback === 'undefined') throw new Error('s3-image-uploader: Uploader.upload: "successCallback" is not defined.');
+  if(typeof errorCallback === 'undefined') throw new Error('s3-image-uploader: Uploader.upload: "errorCallback" is not defined.');
 
   var self = this;
 
@@ -178,8 +255,13 @@ Uploader.prototype.upload = function(options, successCallback, errorCallback){
         id : options.fileId,
         message : 'There was a problem uploading this file.'
       };
-      if(self.ws) self.ws.send(JSON.stringify(status));
-      errorCallback.call(uploader, err.stack);
+      if(self.ws){
+        self.ws.send(JSON.stringify(status), function(){
+          errorCallback(message);
+        });
+      } else {
+        errorCallback(message);
+      }
     });
 
     // when the upload has finished call the success callback and send a message through our websocket
@@ -189,8 +271,13 @@ Uploader.prototype.upload = function(options, successCallback, errorCallback){
         id : options.fileId,
         path : '/' + options.bucket + '/' + options.name
       };
-      if(self.ws) self.ws.send(JSON.stringify(status));
-      successCallback.call(uploader, status);
+      if(self.ws){
+        self.ws.send(JSON.stringify(status), function(){
+          successCallback(status);
+        });
+      } else {
+        successCallback(status);
+      }
     });
 
   };
@@ -210,9 +297,13 @@ Uploader.prototype.upload = function(options, successCallback, errorCallback){
         message : message
       };
 
-      if(self.ws) self.ws.send(JSON.stringify(status));
-
-      errorCallback.call(this, message);
+      if(self.ws){
+        self.ws.send(JSON.stringify(status), function(){
+          successCallback(status);
+        });
+      } else {
+        successCallback(status);
+      }
 
     });
 
@@ -267,7 +358,9 @@ Uploader.prototype.validateType = function(file, id, types){
       id : id,
       message : "The file isn't a valid type."
     };
-    if(self.ws) self.ws.send(JSON.stringify(status));
+    if(self.ws){
+      self.ws.send(JSON.stringify(status));
+    }
   }
 
   return valid;
