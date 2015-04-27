@@ -15,3 +15,7 @@
 ## 0.0.9
 
 - Allow max file size on upload function.
+
+## 0.1.0
+
+- Refactor WebSocket functionality and add logging option.
