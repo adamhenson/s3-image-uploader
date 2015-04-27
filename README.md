@@ -132,6 +132,7 @@ function(errMsg){ //error
 ### new Uploader
 * @param {object} options - Configuration object. Required.
   * {object} options.server - Server object. Required.
+  * {object} options.port - port number to be used if not inherited. Required.
   * {object} options.aws - aws object. Required.
   * {string} options.aws.key - aws key string. Required.
   * {string} options.aws.secret - aws secret string. Required.
