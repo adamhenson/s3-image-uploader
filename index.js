@@ -184,10 +184,10 @@ Uploader.prototype.resize = function(options, successCallback, errorCallback){
 
         if(self.ws){
           self.ws.send(JSON.stringify(status), function(){
-            errorCallback(message);
+            errorCallback(status);
           });
         } else {
-          errorCallback(message);
+          errorCallback(status);
         }
 
       });
@@ -257,10 +257,10 @@ Uploader.prototype.upload = function(options, successCallback, errorCallback){
       };
       if(self.ws){
         self.ws.send(JSON.stringify(status), function(){
-          errorCallback(status.message);
+          errorCallback(status);
         });
       } else {
-        errorCallback(status.message);
+        errorCallback(status);
       }
     });
 
