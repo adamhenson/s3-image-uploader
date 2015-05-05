@@ -19,3 +19,7 @@
 ## 0.1.0
 
 - Refactor WebSocket functionality and add logging option.
+
+## 0.1.12
+
+- Fix logging.
