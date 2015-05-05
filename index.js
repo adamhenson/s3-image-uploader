@@ -253,14 +253,14 @@ Uploader.prototype.upload = function(options, successCallback, errorCallback){
       var status = {
         type : 'error',
         id : options.fileId,
-        message : 'There was a problem uploading this file.'
+        message : 's3-image-uploader: Uploader.upload: ' + err
       };
       if(self.ws){
         self.ws.send(JSON.stringify(status), function(){
-          errorCallback(message);
+          errorCallback(status.message);
         });
       } else {
-        errorCallback(message);
+        errorCallback(status.message);
       }
     });
 
