@@ -184,10 +184,10 @@ Uploader.prototype.resize = function(options, successCallback, errorCallback){
 
         if(self.ws){
           self.ws.send(JSON.stringify(status), function(){
-            errorCallback(status);
+            errorCallback(message);
           });
         } else {
-          errorCallback(status);
+          errorCallback(message);
         }
 
       });
@@ -253,14 +253,14 @@ Uploader.prototype.upload = function(options, successCallback, errorCallback){
       var status = {
         type : 'error',
         id : options.fileId,
-        message : 's3-image-uploader: Uploader.upload: ' + err
+        message : 'There was a problem uploading this file.'
       };
       if(self.ws){
         self.ws.send(JSON.stringify(status), function(){
-          errorCallback(status);
+          errorCallback(message);
         });
       } else {
-        errorCallback(status);
+        errorCallback(message);
       }
     });
 
@@ -422,8 +422,8 @@ var imageSize_ = function(source, callback){
 var writeImage_ = function(img, options, successCallback, errorCallback){
 
   img.write(options.destination, function(uploadErr){
-    if(!uploadErr) successCallback.call(img, options.destination);
-    else errorCallback.call(img, uploadErr);
+    if(!uploadErr) successCallback.call(this, img, options.destination);
+    else errorCallback.call(this, img, uploadErr);
   });
 
 };
