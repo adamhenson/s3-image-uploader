@@ -23,3 +23,8 @@
 ## 0.1.13
 
 - Fix logging.
+
+
+## 0.1.16
+
+- Fix file validation. Catch undefined header.

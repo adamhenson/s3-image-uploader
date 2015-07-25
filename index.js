@@ -344,7 +344,10 @@ Uploader.prototype.validateType = function(file, id, types){
   var self = this;
   var valid = false;
   
-  var contentType = file.headers['content-type'];
+  var contentType = (!file.headers || !file.headers['content-type'])
+    ? false
+    : file.headers['content-type'];
+
   for(var i in types) {
     if(types[i] === contentType) {
       valid = true;
