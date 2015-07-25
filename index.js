@@ -348,6 +348,9 @@ Uploader.prototype.validateType = function(file, id, types){
     ? false
     : file.headers['content-type'];
 
+  // Sometimes mimetype. TODO: Research this more
+  if(!contentType && file.mimetype) contentType = file.mimetype;
+
   for(var i in types) {
     if(types[i] === contentType) {
       valid = true;
