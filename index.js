@@ -250,17 +250,18 @@ Uploader.prototype.upload = function(options, successCallback, errorCallback){
 
     // on upload error call error callback
     uploader.on('error', function(err){
+      var errorMessage = 'There was a problem uploading this file.';
       var status = {
         type : 'error',
         id : options.fileId,
-        message : 'There was a problem uploading this file.'
+        message : errorMessage
       };
       if(self.ws){
         self.ws.send(JSON.stringify(status), function(){
-          errorCallback(message);
+          errorCallback(errorMessage);
         });
       } else {
-        errorCallback(message);
+        errorCallback(errorMessage);
       }
     });
 

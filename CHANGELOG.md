@@ -32,3 +32,7 @@
 ## 0.1.17
 
 - Addition to 0.1.16 - add mimetype catch.
+
+## 0.1.18
+
+- Fix undefined parameter.
