@@ -137,6 +137,7 @@ function(errMsg){ //error
   * {string} options.aws.key - aws key string. Required.
   * {string} options.aws.secret - aws secret string. Required.
   * {boolean} options.websockets - boolean used to enable websockets (enabled is true). Optional. Default is true.
+  * {object} options.s3Params - object that can extend the S3 parameters listed here http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html. Optional. Example: `s3Params : { 'CacheControl' : 'max-age=3600'}`
 
 ### resize
 * @param {object} options - Configuration object. Required.
