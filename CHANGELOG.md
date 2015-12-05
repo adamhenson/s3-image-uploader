@@ -36,3 +36,7 @@
 ## 0.1.18
 
 - Fix undefined parameter.
+
+## 0.1.19
+
+- Fix issue #1. Now a developer can extend the S3 object with valid params.
