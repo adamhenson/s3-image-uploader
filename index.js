@@ -235,6 +235,9 @@ Uploader.prototype.upload = function(options, successCallback, errorCallback){
     }
   };
 
+  // if more s3 params are set, extend the object
+  if(options.s3Params) params.s3Params = extend(params.s3Params, options.s3Params);
+
   var initialize_ = function(){
 
     var uploader = self.client.uploadFile(params);
