@@ -6,6 +6,8 @@ var WebSocketServer = require('ws').Server;
 var s3 = require('s3');
 // gm (GraphicsMagick) - For image manipulation: https://github.com/aheckmann/gm
 var gm = require('gm');
+// other helper requires below
+var extend = require('extend');
 
 /**
  * Websocket constructor.
