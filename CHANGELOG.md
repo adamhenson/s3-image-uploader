@@ -40,3 +40,9 @@
 ## 0.1.19
 
 - Fix issue #1. Now a developer can extend the S3 object with valid params.
+
+## 1.0.0
+
+- Made setup easier by replacing required `server` option with optional `websocketServer` option.
+- Renamed options to be more intuitive. Replaced `port` with `websocketServerPort`.
+- Removed boolean `websocket` option and replaced the check to simply read the `websocketServer` option for existence.

@@ -52,7 +52,8 @@ var uploader = new Uploader({
     key : process.env.NODE_AWS_KEY,
     secret : process.env.NODE_AWS_SECRET
   },
-  server : server
+  websocketServer : server,
+  websocketServerPort : 3004,
 });
 ```
 
@@ -131,12 +132,11 @@ function(errMsg){ //error
 
 ### new Uploader
 * @param {object} options - Configuration object. Required.
-  * {object} options.server - Server object. Required.
-  * {string} options.port - port number to be used if not inherited. Required.
   * {object} options.aws - aws object. Required.
   * {string} options.aws.key - aws key string. Required.
   * {string} options.aws.secret - aws secret string. Required.
-  * {boolean} options.websockets - boolean used to enable websockets (enabled is true). Optional. Default is true.
+  * {object} options.websocketServer - WebSocket server object. Optional.
+  * {number} options.websocketServerPort - WebSocket server port. Optional.
   * {object} options.s3Params - object that can extend the S3 parameters listed here http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html. Optional. Example: `s3Params : { 'CacheControl' : 'max-age=3600'}`
 
 ### resize

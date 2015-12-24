@@ -20,7 +20,7 @@ function Websocket(options){
   };
   // more defaults and options
   this.wss = false;
-  this.server = options.server;
+  this.server = options.websocketServer;
   this.port = (options.port)
     ? options.port
     : false;
@@ -77,33 +77,35 @@ Websocket.prototype.send = function(message, callback){
 /**
  * Uploader constructor.
  * @param {object} options - Configuration object. Required.
- *  {object} options.server - Server object. Required.
  *  {object} options.aws - aws object. Required.
  *  {string} options.aws.key - aws key string. Required.
  *  {string} options.aws.secret - aws secret string. Required.
- *  {boolean} options.websockets - boolean used to enable websockets (enabled is true). Optional. Default is true.
+ *  {object} options.websocketServer - WebSocket server object. Optional.
+ *  {number} options.websocketServerPort - WebSocket server port. Optional.
  */
 var Uploader = function(options){
 
   var self = this;
 
-  if(typeof options.server === 'undefined') throw new Error('s3-image-uploader: Uploader: "server" is not defined.');
   if(typeof options.aws.key === 'undefined') throw new Error('s3-image-uploader: Uploader: "aws.key" is not defined.');
   if(typeof options.aws.secret === 'undefined') throw new Error('s3-image-uploader: Uploader: "aws.secret" is not defined.');
   // default
-  if(typeof options.websockets === 'undefined') options.websockets = true;
   if(typeof options.port === 'undefined') options.port = false;
+  if(typeof options.websocketServerPort === 'undefined') options.websocketServerPort = false;
   if(typeof options.log === 'undefined') options.log = true;
 
   self.options = options;
+  // support older versions of this module
+  if(options.server) self.options.websocketServer = options.server;
+  if(options.port) self.options.websocketServerPort = options.port;
 
   // websockets
-  if(options.websockets) {
+  if(self.options.websocketServer) {
     var webSocketOptions = {
-      'server' : self.options.server,
+      'server' : self.options.websocketServer,
     };
-    if(options.port) webSocketOptions.port = options.port;
-    if(options.log) webSocketOptions.log = options.log;
+    if(self.options.websocketServerPort) webSocketOptions.port = self.options.websocketServerPort;
+    if(self.options.log) webSocketOptions.log = self.options.log;
     self.ws = new Websocket(webSocketOptions);
     self.ws.start();
   }
