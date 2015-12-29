@@ -109,6 +109,7 @@ uploader.getExifData(filePath, function(data){
 
 Get dimension object from image.
 The below code will log something like this: `{ width: 1200, height: 900 }`
+This method uses the GraphicsMagick `size` method. Find [more documentation here](http://aheckmann.github.io/gm/docs.html).
 
 ```javascript
 uploader.getSize(filePath, function(data){
