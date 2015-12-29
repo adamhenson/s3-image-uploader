@@ -46,3 +46,7 @@
 - Made setup easier by replacing required `server` option with optional `websocketServer` option.
 - Renamed options to be more intuitive. Replaced `port` with `websocketServerPort`.
 - Removed boolean `websocket` option and replaced the check to simply read the `websocketServer` option for existence.
+
+## 1.0.1
+
+- Add `getSize` method.

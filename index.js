@@ -342,6 +342,24 @@ Uploader.prototype.getExifData = function(source, callback){
 };
 
 /**
+ * Get the size of an image.
+ * @param {string} source - Path of image. Required.
+ * @param {function} callback - Callback that receives argument of false or data object. Required.
+ */
+Uploader.prototype.getSize = function(source, callback){
+
+  gm(source)
+    .size(function (dataErr, data) {
+      if (!dataErr) {
+        callback.call(this, data);
+      } else { // no size data
+        callback.call(this, false);
+      }
+    });
+
+};
+
+/**
  * Validate file type and return boolean of validity.
  * @param {object} file - Post object. Required.
  * @param {string} id - Used to uniquely identify file. Required.

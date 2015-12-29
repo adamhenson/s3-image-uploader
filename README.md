@@ -105,6 +105,19 @@ uploader.getExifData(filePath, function(data){
 });
 ```
 
+#### Get Image Size
+
+Get dimension object from image.
+The below code will log something like this: `{ width: 1200, height: 900 }`
+
+```javascript
+uploader.getSize(filePath, function(data){
+
+  console.log('image size data', data);
+
+});
+```
+
 #### Upload
 
 Upload the file to s3.
