@@ -176,6 +176,10 @@ function(errMsg){ //error
 * @param {string} source - Path of image. Required.
 * @param {function} callback - Callback that receives argument of false or data object. Required.
 
+### getSize
+* @param {string} source - Path of image. Required.
+* @param {function} callback - Callback that receives argument of false or data object. Required. The received data object will be in a format similar to this: `{ width: 1200, height: 900 }`
+
 ### upload
 * @param {object} options - Configuration object. Required.
   * {string} options.fileId - Used to uniquely identify file. Required.
