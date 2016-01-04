@@ -50,3 +50,7 @@
 ## 1.0.1
 
 - Add `getSize` method.
+
+## 1.0.2
+
+- Updated readme.
