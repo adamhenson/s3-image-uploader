@@ -142,6 +142,18 @@ function(errMsg){ //error
 });
 ```
 
+#### Delete
+
+Delete an array of files from AWS (array can include only one file if desired).
+
+```javascript
+uploader.delete('somebucket', ['cat.jpg', 'dog.png', 'turtle.gif'], function(data){
+  console.log('yay!', data);
+}, function(err){
+  console.log('fail!', err);
+});
+```
+
 ## Options
 
 ### new Uploader
@@ -189,6 +201,12 @@ function(errMsg){ //error
   * {number || boolean} options.maxFileSize - can be a number or boolean false. The number represents file size in MegaBytes. Optional. Default is false.
 * @param {function} successCallback - Callback function. Receives one argument - {object} status object. Required.
 * @param {function} errorCallback - Callback function. Receives one argument - {object} error stack trace. Required.
+
+### delete
+* @param {string} bucket - AWS bucket name. Required.
+* @param {array} fileNames - Array of string filenames (example: ['cat.jpg', 'dog.png', 'turtle.gif']). Required.
+* @param {function} successCallback - Callback that receives data object. Required.
+* @param {function} errorCallback - Callback that receives error object. Optional.
 
 ## On the Client Side
 

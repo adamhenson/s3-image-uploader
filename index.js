@@ -324,6 +324,41 @@ Uploader.prototype.upload = function(options, successCallback, errorCallback){
 };
 
 /**
+ * Delete an array of files (array can include only one file if desired).
+ * @param {string} bucket - AWS bucket. Required.
+ * @param {array} fileNames - Array of string filenames (example: ['cat.jpg', 'dog.png', 'turtle.gif']). Required.
+ * @param {function} successCallback - Callback that receives data object. Required.
+ * @param {function} errorCallback - Callback that receives error object. Optional.
+ */
+Uploader.prototype.delete = function(bucket, fileNames, successCallback, errorCallback){
+
+  var self = this;
+  var objects = [];
+
+  fileNames.forEach(function(fileName){
+    objects.push({ 'Key' : fileName });
+  });
+
+  var s3Params = {
+    Bucket : bucket,
+    Delete : {
+      Objects : objects
+    }
+  };
+
+  var deleter = self.client.deleteObjects(s3Params);
+
+  deleter.on('error', function(err){
+    if (errorCallback) errorCallback(err);
+  });
+
+  deleter.on('end', function(obj){
+    successCallback(obj);
+  });
+
+};
+
+/**
  * Get the Exif data of a file.
  * @param {string} source - Path of image. Required.
  * @param {function} callback - Callback that receives argument of false or data object. Required.
