@@ -24,7 +24,6 @@
 
 - Fix logging.
 
-
 ## 0.1.16
 
 - Fix file validation. Catch undefined header.
@@ -58,3 +57,7 @@
 ## 1.0.3
 
 - Add `delete` method.
+
+## 1.0.4
+
+- Badges.

@@ -1,5 +1,9 @@
 #s3-image-uploader
 
+[![npm](https://img.shields.io/npm/v/s3-image-uploader.svg)]()
+[![npm](https://img.shields.io/npm/dm/s3-image-uploader.svg)]()
+[![npm](https://img.shields.io/npm/dt/s3-image-uploader.svg)]()
+
 > A Node.js module for resizing, and uploading files to Amazon S3 with capability to track progress using websockets.
 >
 > This module was created to use with little setup and customization as it's simply a wrapper of [AWS SDK](http://aws.amazon.com/sdk-for-node-js/) and [gm](https://github.com/aheckmann/gm). This module also utilizes [Websockets](https://github.com/einaros/ws), which can be optionally enabled to allow the server to send the client messages such as file upload completion and upload progress.
