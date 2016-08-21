@@ -42,7 +42,7 @@ Below is the basic configuration, but you can see [full example code here](https
 Include the module.
 
 ```javascript
-var Uploader = require('node-s3-uploader');
+var Uploader = require('s3-image-uploader');
 ```
 
 #### Instantiation

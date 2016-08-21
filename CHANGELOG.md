@@ -61,3 +61,7 @@
 ## 1.0.4
 
 - Badges.
+
+## 1.0.5
+
+- Fix documentation typo.
