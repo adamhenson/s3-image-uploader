@@ -140,8 +140,8 @@ function(data){ // success
   console.log('upload success:', data);
   // execute success code
 },
-function(errMsg, errObject){ //error
-  console.error('unable to upload: ' + errMsg + ':', errObject);
+function(errMsg){ //error
+  console.error('unable to upload: ' + errMsg);
   // execute error code
 });
 ```
@@ -204,7 +204,7 @@ uploader.delete('somebucket', ['cat.jpg', 'dog.png', 'turtle.gif'], function(dat
   * {string} options.name - Name to be used for new file uploaded to S3. Required.
   * {number || boolean} options.maxFileSize - can be a number or boolean false. The number represents file size in MegaBytes. Optional. Default is false.
 * @param {function} successCallback - Callback function. Receives one argument - {object} status object. Required.
-* @param {function} errorCallback - Callback function. Receives two arguments - {string} error message. {object} error stack trace. Required.
+* @param {function} errorCallback - Callback function. Receives one argument - {object} error stack trace. Required.
 
 ### delete
 * @param {string} bucket - AWS bucket name. Required.

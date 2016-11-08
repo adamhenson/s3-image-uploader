@@ -210,8 +210,7 @@ Uploader.prototype.resize = function(options, successCallback, errorCallback){
  * Upload to S3.
  * @param {object} options - Configuration object. Required.
  * @param {function} successCallback - Callback function. Receives one argument - {object} status object. Required.
- * @param {function} errorCallback - Callback function. Receives two arguments - (argument 1) {string} error message. 
- *        (argument 2) {object} error stack trace. Required.
+ * @param {function} errorCallback - Callback function. Receives one argument - {object} error stack trace. Required.
  *  {string} options.fileId - Used to uniquely identify file. Required.
  *  {string} options.bucket - S3 bucket. Required.
  *  {string} options.source - Path to the image to be uploaded. Required.
@@ -266,10 +265,10 @@ Uploader.prototype.upload = function(options, successCallback, errorCallback){
       };
       if(self.ws){
         self.ws.send(JSON.stringify(status), function(){
-          errorCallback(errorMessage, err);
+          errorCallback(errorMessage);
         });
       } else {
-        errorCallback(errorMessage, err);
+        errorCallback(errorMessage);
       }
     });
 
