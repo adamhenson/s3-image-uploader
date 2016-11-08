@@ -65,3 +65,7 @@
 ## 1.0.5
 
 - Fix documentation typo.
+
+## 1.0.6
+
+- Provide another parameter in `Uploader.upload` `errorCallback` to provide the error stack trace. Fixes #2.
